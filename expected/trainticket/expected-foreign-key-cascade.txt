@@ -1,0 +1,33 @@
+---------------------------------------------------------------------
+------------------- ANALYSIS: FOREIGN KEY CASCADE -------------------
+---------------------------------------------------------------------
+[NUM_WARNINGS = 18]
+delete: AdminBasicInfoService.DeleteStation() ... StationService.DeleteStation() ... station_db.station.DeleteOne()
+	missing cascade #1: database={consign_db}, entity={consign_record}, pending_fields={FromPlace, ToPlace}
+	missing cascade #2: database={order_db}, entity={order}, pending_fields={FromStation, ToStation}
+	missing cascade #3: database={delivery_db}, entity={delivery}, pending_fields={StationName}
+	missing cascade #4: database={food_db}, entity={food_order}, pending_fields={StationName}
+	missing cascade #5: database={route_db}, entity={route}, pending_fields={EndStation, StartStation, Stations}
+	missing cascade #6: database={travel_db}, entity={trip}, pending_fields={StartStationName, StationsName, TerminalStationName}
+
+delete: AdminBasicInfoService.DeleteTrain() ... TrainService.DeleteTrain() ... train_db.train.DeleteOne()
+	missing cascade #7: database={price_db}, entity={price_config}, pending_fields={TrainType}
+	missing cascade #8: database={travel_db}, entity={trip}, pending_fields={TrainTypeName}
+
+delete: AdminOrderService.DeleteOrder() ... OrderService.DeleteOrder() ... order_db.order.DeleteOne()
+	missing cascade #9: database={assurance_db}, entity={assurance}, pending_fields={OrderID}
+	missing cascade #10: database={consign_db}, entity={consign_record}, pending_fields={OrderID, TargetDate}
+	missing cascade #11: database={delivery_db}, entity={delivery}, pending_fields={OrderID}
+	missing cascade #12: database={food_db}, entity={food_order}, pending_fields={OrderID}
+
+delete: AdminRouteService.DeleteRoute() ... RouteService.DeleteRoute() ... route_db.route.DeleteOne()
+	missing cascade #13: database={price_db}, entity={price_config}, pending_fields={RouteID}
+	missing cascade #14: database={travel_db}, entity={trip}, pending_fields={RouteID}
+
+delete: AdminTravelService.DeleteTravel() ... TravelService.DeleteTrip() ... travel_db.trip.DeleteOne()
+	missing cascade #15: database={order_db}, entity={order}, pending_fields={Price, TrainNumber, TravelTime}
+
+delete: AdminUserService.DeleteUser() ... UserService.DeleteUser() ... user_db.user.DeleteOne()
+	missing cascade #16: database={consign_db}, entity={consign_record}, pending_fields={AccountID}
+	missing cascade #17: database={order_db}, entity={order}, pending_fields={AccountID}
+	missing cascade #18: database={contacts_db}, entity={contacts}, pending_fields={AccountID}

@@ -1,0 +1,8 @@
+results/**
+output/**
+plots/**
+**/.DS_Store
+.venv/**
+__pycache__/**
+paper/**
+!paper/.keep

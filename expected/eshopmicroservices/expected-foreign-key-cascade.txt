@@ -1,0 +1,10 @@
+---------------------------------------------------------------------
+------------------- ANALYSIS: FOREIGN KEY CASCADE -------------------
+---------------------------------------------------------------------
+[NUM_WARNINGS = 3]
+delete: CatalogService.DeleteProduct() ... catalog_db.product.DeleteOne()
+	missing cascade #1: database={basket_db}, entity={basket}, pending_fields={Items[*], Items[*].Price, Items[*].ProductId, Items[*].ProductName}
+	missing cascade #2: database={discount_db}, entity={discount}, pending_fields={ProductName}
+
+delete: DiscountService.DeleteDiscount() ... discount_db.coupon.DeleteOne()
+	missing cascade #3: database={basket_db}, entity={basket}, pending_fields={Items[*].ProductName}

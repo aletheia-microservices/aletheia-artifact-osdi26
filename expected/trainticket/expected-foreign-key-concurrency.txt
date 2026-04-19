@@ -1,0 +1,73 @@
+---------------------------------------------------------------------
+----------------- ANALYSIS: FOREIGN KEY CONCURRENCY -----------------
+---------------------------------------------------------------------
+[NUM_WARNINGS = 26]
+delete: AdminBasicInfoService.DeleteContact() ... ContactsService.Delete() ... contacts_db.contacts.DeleteOne()
+	write #1: AdminOrderService.AddOrder() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={ContactsDocumentNumber, ContactsName, DocumentType}
+	write #2: Dashboard.PreserveTicketConfirm() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={ContactsDocumentNumber, ContactsName, DocumentType}
+
+delete: AdminBasicInfoService.DeletePrice() ... PriceService.DeletePriceConfig() ... price_db.price_config.DeleteOne()
+	write #3: AdminOrderService.AddOrder() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={Price}
+	write #4: Dashboard.PreserveTicketConfirm() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={Price}
+
+delete: AdminBasicInfoService.DeleteStation() ... StationService.DeleteStation() ... station_db.station.DeleteOne()
+	write #5: Dashboard.PreserveTicketConfirm() ... ConsignService.InsertConsign() ... consign_db.consign_record.InsertOne()
+		- database={consign_db}, entity={consign_record}, written_fields={FromPlace, ToPlace}
+	write #6: AdminOrderService.AddOrder() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={FromStation, ToStation}
+	write #7: Dashboard.PreserveTicketConfirm() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={FromStation, ToStation}
+	write #8: Dashboard.PreserveTicketConfirm() ... DeliveryService.Run() ... delivery_db.delivery.InsertOne()
+		- database={delivery_db}, entity={delivery}, written_fields={StationName}
+	write #9: AdminOrderService.AddOrder() ... FoodService.CreateFoodOrder() ... food_db.food_order.InsertOne()
+		- database={food_db}, entity={food_order}, written_fields={StationName}
+	write #10: AdminRouteService.AddRoute() ... RouteService.CreateAndModify() ... route_db.route.InsertOne()
+		- database={route_db}, entity={route}, written_fields={EndStation, StartStation, Stations}
+	write #11: AdminTravelService.AddTravel() ... TravelService.CreateTrip() ... travel_db.trip.InsertOne()
+		- database={travel_db}, entity={trip}, written_fields={StartStationName, StationsName, TerminalStationName}
+	write #12: AdminTravelService.UpdateTravel() ... TravelService.UpdateTrip() ... travel_db.trip.InsertOne()
+		- database={travel_db}, entity={trip}, written_fields={StartStationName, StationsName, TerminalStationName}
+
+delete: AdminBasicInfoService.DeleteTrain() ... TrainService.DeleteTrain() ... train_db.train.DeleteOne()
+	write #13: AdminBasicInfoService.AddPrice() ... PriceService.CreateNewPriceConfig() ... price_db.price_config.InsertOne()
+		- database={price_db}, entity={price_config}, written_fields={TrainType}
+	write #14: AdminTravelService.AddTravel() ... TravelService.CreateTrip() ... travel_db.trip.InsertOne()
+		- database={travel_db}, entity={trip}, written_fields={TrainTypeName}
+	write #14: AdminTravelService.UpdateTravel() ... TravelService.UpdateTrip() ... travel_db.trip.InsertOne()
+		- database={travel_db}, entity={trip}, written_fields={TrainTypeName}
+
+delete: AdminRouteService.DeleteRoute() ... RouteService.DeleteRoute() ... route_db.route.DeleteOne()
+	write #15: AdminBasicInfoService.AddPrice() ... PriceService.CreateNewPriceConfig() ... price_db.price_config.InsertOne()
+		- database={price_db}, entity={price_config}, written_fields={RouteID}
+	write #16: AdminTravelService.AddTravel() ... TravelService.CreateTrip() ... travel_db.trip.InsertOne()
+		- database={travel_db}, entity={trip}, written_fields={RouteID}
+	write #17: AdminTravelService.UpdateTravel() ... TravelService.UpdateTrip() ... travel_db.trip.InsertOne()
+		- database={travel_db}, entity={trip}, written_fields={RouteID}
+
+delete: AdminTravelService.DeleteTravel() ... TravelService.DeleteTrip() ... travel_db.trip.DeleteOne()
+	write #18: AdminOrderService.AddOrder() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={Price, TrainNumber, TravelTime}
+	write #19: Dashboard.PreserveTicketConfirm() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={Price, TrainNumber, TravelTime}
+
+delete: AdminUserService.DeleteUser() ... UserService.DeleteUser() ... user_db.user.DeleteOne()
+	write #20: Dashboard.PreserveTicketConfirm() ... ConsignService.InsertConsign() ... consign_db.consign_record.InsertOne()
+		- database={consign_db}, entity={consign_record}, written_fields={AccountID}
+	write #21: AdminOrderService.AddOrder() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={AccountID}
+	write #22: Dashboard.PreserveTicketConfirm() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={AccountID}
+	write #23: AdminBasicInfoService.AddContact() ... ContactsService.CreateContacts() ... contact_db.contact.InsertOne()
+		- database={contact_db}, entity={contact}, written_fields={AccountID}
+	write #24: Dashboard.AddContact() ... ContactsService.CreateContacts() ... contact_db.contact.InsertOne()
+		- database={contact_db}, entity={contact}, written_fields={AccountID}
+
+delete: Dashboard.DeleteContacts() ... ContactsService.Delete() ... contacts_db.contacts.DeleteOne()
+	write #25: AdminOrderService.AddOrder() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={ContactsDocumentNumber, ContactsName, DocumentType}
+	write #26: Dashboard.PreserveTicketConfirm() ... OrderService.CreateNewOrder() ... order_db.order.InsertOne()
+		- database={order_db}, entity={order}, written_fields={ContactsDocumentNumber, ContactsName, DocumentType}
