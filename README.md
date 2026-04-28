@@ -34,7 +34,7 @@ After cloning the repository, make sure to initialize submodules for Aletheia un
 git submodule update --init --recursive
 ```
 
-For Aletheia's full documentation, see [aletheia/README.md](aletheia/README.md).
+For Aletheia's full documentation, see [aletheia/README.md](https://github.com/aletheia-microservices/aletheia/blob/main/README.md).
 
 ### Analyzing a Simple Application
 
