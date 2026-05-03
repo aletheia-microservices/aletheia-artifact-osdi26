@@ -1,12 +1,17 @@
 # Aletheia - Artifact OSDI'26
 
-This repository contains the artifacts for the paper "Aletheia: Automated Detection of Data Integrity Violations in Microservices" accepted in OSDI'26.
+This repository contains the artifacts for the paper "Aletheia: Automated Detection of Data Integrity Violations in Microservices", accepted in OSDI'26.
+
+See [Getting Started](#getting-started) for a quick demonstration of how to analyze a simple application.
+
+See [Detailed Instructions](#detailed-instructions) for instructions on running the experiments and obtaining the results in the paper.
 
 ## Requirements
 
 To run experiments:
 
 - [Golang](https://go.dev/doc/install) >= 1.24.5
+- `time` command with memory reporting support (e.g., GNU `time -v` commonly available on Linux or BSD `/usr/bin/time -l` on macOS)
 
 To later gather results from experiments, either install dependencies manually (Python and Cloc) or use our provided Docker image:
 
@@ -15,20 +20,13 @@ To later gather results from experiments, either install dependencies manually (
 
 ## Overview
 
-The repository is organized as follows:
+Clone the repository:
 
-- `aletheia/`: our static analysis framework
-- `aletheia/blueprint/`: Blueprint compiler
-- `aletheia/blueprint/examples/`: applications written in Blueprint and analyzed by Aletheia  
-- `examples/simpleshop/`: demo application to demonstrate Aletheia  
-- `registry/`: locations and Blueprint specs for each application 
-- `gen_synthetic/`: generator for synthetic applications (based on [Alibaba traces]((https://github.com/alibaba/clusterdata/tree/master/cluster-trace-microservices-v2021)))
-- `expected/`: expected results for validation of warnings
-- `paper/`: generated tables and plots from the paper
+```zsh
+git clone --recurse-submodules https://github.com/aletheia-microservices/aletheia-artifact-osdi26.git
+```
 
-## Getting Started
-
-After cloning the repository, make sure to initialize submodules for Aletheia under `aletheia/` and Blueprint under `aletheia/blueprint/`:
+If you already cloned the repository without `--recurse-submodules`, make sure to initialize the submodules:
 
 ```zsh
 git submodule update --init --recursive
@@ -36,7 +34,24 @@ git submodule update --init --recursive
 
 For Aletheia's full documentation, see [aletheia/README.md](https://github.com/aletheia-microservices/aletheia/blob/main/README.md).
 
-### Analyzing a Simple Application
+The repository is organized as follows:
+
+```
+├── aletheia/                         # Aletheia static analysis framework
+│   └── blueprint/                    # Blueprint compiler
+│       └── examples/                 # Blueprint applications analyzed by Aletheia
+├── registry/                         # locations and Blueprint specs for each application
+├── generator-synthetic-apps/         # generator for synthetic applications based on Alibaba traces
+├── expected/
+│   └── {app}/                        # expected results for validation of warnings
+└── paper/                            # generated tables and plots from the paper
+```
+
+The generation of synthetic applications is based on call graph characteristics observed in [Alibaba traces](<(https://github.com/alibaba/clusterdata/tree/master/cluster-trace-microservices-v2021)>) specified in `generator-synthetic-apps/configs/alibaba2021.yaml`.
+
+The expected results in `expected/{app}` include a README for each application, summarizing the detected warnings and true positives, false positives, and false negatives.
+
+## Getting Started
 
 We now demonstrate how to analyze a simple application, `simpleshop`, provided in `blueprint/examples/simpleshop/`. The application is composed of two microservices, Product Service and Inventory Service and allows clients to register new products and their respective inventory, as well as delete products.
 
@@ -88,10 +103,9 @@ ignore_cascade:
     # optional fields for more fine-grained control
     trigger_database: product_db
     trigger_entity: product
-
 ```
 
-Then, you can run again the analysis and pass the `--detection_config` flag followed by the file path:
+Then, you can run the analysis again and pass the `--detection_config` flag followed by the file path:
 
 ```zsh
 go run main.go --detection_config config/simpleshop.yaml simpleshop
@@ -105,16 +119,23 @@ We recommend using a machine with at least **16 GB of RAM** available to analyze
 
 The actual experiments should take approximately **4 hours**. However, most of the time is spent analyzing the synthetic applications, since analyzing the realistic applications takes less than **2 minutes**.
 
-**NOTE:** If you wish to **only obtain the results for the realistic applications** and **disregard synthetic** ones, you can remove the three files prefixed with `apps_synthetic` in `registry/`. This way, you will still be able to obtain all the results related to realistic applications in Table 2 and Figure 5.
+In the end, the `paper/` directory will contain the following files corresponding to the results reported in the paper:
+- Table 2: `paper/table2-realistic.apps.txt`
+- Table 3: `paper/table3-synthetic.apps.txt`
+- Figure 5: `paper/figure5-realistic-synthetic.txt`
 
-### Configuring Aletheia
+> [!NOTE]
+> If you only wish to reproduce the results for the **realistic applications**, you can remove the three files in `registry/` that start with `apps_synthetic_` and proceed directly to [Registering Applications in Aletheia](#registering-applications-in-aletheia). This will **skip the experiments for synthetic applications** while still allowing you to reproduce the results for realistic applications reported in Table 2 and Figure 5.
 
-Generate the synthetic applications based on graph characteristics (call depth, fan-out, and request volume) defined in `generator-synthetic-apps/config.yaml` whose values were derived from [Alibaba's 2021 production microservice traces](https://github.com/Antipode-SOSP23/alibaba-spike). The script takes the templates for Go applications targeting Blueprint in `generator-synthetic-apps/templates/`, reads the configuration in `generator-synthetic-apps/config.yaml` containing the call graph characteristics, and generates and saves the synthetic applications under `aletheia/blueprint/examples/`:
+### Generating Synthetic Applications
+
+Generate the synthetic applications based on graph characteristics (call depth, fan-out, and request volume) defined in `generator-synthetic-apps/configs/alibaba2021.yaml` whose values were derived from [Alibaba's 2021 production microservice traces](https://github.com/Antipode-SOSP23/alibaba-spike). The script takes the templates for Go applications targeting Blueprint in `generator-synthetic-apps/templates/`, reads the configuration in `generator-synthetic-apps/configs/alibaba2021.yaml` containing the call graph characteristics, and generates and saves the synthetic applications under `aletheia/blueprint/examples/`:
 
 ```zsh
-# make sure you run from this directory (gen_synthetic) due to Go mod dependencies
-cd generator-synthetic-apps && go run main.go --config alibaba2021 --output ../aletheia/blueprint/examples && cd ..
+cd generator-synthetic-apps && go run main.go --config config/alibaba2021.yaml --output ../aletheia/blueprint/examples && cd ..
 ```
+
+### Registering Applications in Aletheia
 
 Copy the files in `registry` to `aletheia/registry`. These files provide the application locations and the corresponding Blueprint specifications required by Aletheia:
 
@@ -125,7 +146,6 @@ cp -r registry/* aletheia/registry/
 Then, generate the application registry. This script uses the information copied to `aletheia/registry/` to create a Go file under `aletheia/pkg/frameworks/blueprint/` and update `aletheia/go.mod`, allowing Aletheia to import the applications to be analyzed:
 
 ```zsh
-# make sure you run from this directory (aletheia) so paths for the new Go file and the Go mod file are resolved correctly
 cd aletheia && go run scripts/gen_app_registry/main.go && cd ..
 ```
 
@@ -133,13 +153,15 @@ cd aletheia && go run scripts/gen_app_registry/main.go && cd ..
 
 The experiments include the analysis of **realistic applications** (digota, sockshop, eshopmicroservices, postnotification, dsb_socialnetwork, dsb_mediamicroservices, trainticket) and **synthetic applications** (app1, app2, app3, app4, app5), all located under `blueprint/examples/` folder.
 
-Run the experiments for all applications. If you want to run experiments only for realistic or synthetic applications, you can add the `--realistic` or `--synthetic` flag, respectively. You can use the `--help` flag to see all available options.
+Run the experiments for all applications. If you are running the experiments only for realistic or synthetic applications, you can add the `--realistic` or `--synthetic` flag, respectively. You can use the `--help` flag to see all available options.
 
 ```zsh
 ./run.sh
 ```
 
-The results for each analysis iteration will be saved under `aletheia/eval/metrics/{current_date}/` and `aletheia/eval/memory/{current_date}/`.
+The script will run the experiments 5 times for each application. Peak memory usage is collected using the `time` command with memory reporting support (e.g., GNU `time -v` commonly available on Linux or BSD `/usr/bin/time -l` on macOS).
+
+The results for each analysis iteration will be saved under `aletheia/eval/metrics/{date}/` and `aletheia/eval/memory/{date}/`.
 
 The output containing the detected warnings will be saved under `aletheia/output/{app}/analysis/`.
 
@@ -190,13 +212,14 @@ Run the following script to collect all results from the experiments:
 
 Internally, `collect.sh` executes the following scripts in order to collect the results:
 
-| Script                | Purpose                                                                           | Inputs                                        | Outputs                                                                     |
-| --------------------- | --------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------- |
-| `collect_warnings.py` | collect warnings per pattern, compare actual vs expected, compute TP/FP/FN, precision and recall    | `aletheia/output/{app}/`<br>`expected/{app}/` | `paper/tmp/table2_real_detection.txt`                                       |
-| `collect_metrics.py`  | collect app characteristics (microservices, datastores, LOC, call graphs) and analysis time         | `aletheia/eval/metrics/{current_date}/`       | `results/metrics-realistic.yaml`<br>`results/metrics-synthetic.yaml`<br>`paper/tmp/table2_real_metrics.txt`<br>`paper/tmp/table3_synth_metrics.txt` |
-| `collect_memory.py`   | collect average peak memory usage                                                 | `aletheia/eval/memory/{current_date}/`        | `results/memory-realistic.txt`<br>`results/memory-synthetic.txt`<br>`paper/tmp/table2_real_memory.txt`<br>`paper/tmp/table3_synth_memory.txt`   |
+| Script                | Purpose                                                                                          | Inputs                                        | Outputs                                                                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `collect_warnings.py` | collect warnings per pattern, compare actual vs expected, compute TP/FP/FN, precision and recall | `aletheia/output/{app}/`<br>`expected/{app}/` | `paper/tmp/table2_real_detection.txt`                                                                                                               |
+| `collect_metrics.py`  | collect app characteristics (microservices, datastores, LOC, call graphs) and analysis time      | `aletheia/eval/metrics/{date}/`       | `results/metrics-realistic.yaml`<br>`results/metrics-synthetic.yaml`<br>`paper/tmp/table2_real_metrics.txt`<br>`paper/tmp/table3_synth_metrics.txt` |
+| `collect_memory.py`   | collect average peak memory usage                                                                | `aletheia/eval/memory/{date}/`        | `results/memory-realistic.txt`<br>`results/memory-synthetic.txt`<br>`paper/tmp/table2_real_memory.txt`<br>`paper/tmp/table3_synth_memory.txt`       |
 
-**NOTE**: The scripts gather all results for the **current date** under `aletheia/eval/{memory,metrics}/{current_date}/`. If you want to rerun the experiments, make sure to clean up these directories beforehand.
+> [!WARNING]
+> The scripts gather all results for the **current date** under `aletheia/eval/{memory,metrics}/{date}/`. If you want to rerun the experiments, make sure to clean up these directories beforehand.
 
 The files saved to `paper/tmp/` contain the results that are later aggregated when creating the tables seen in the paper.
 
@@ -225,6 +248,7 @@ The plot will be saved in `paper/figure5-realistic-synthetic.png`.
 Optionally, you can also see detailed analysis results for each application.
 
 You can check the colored diff between the actual warnings in `aletheia/output/{app}/analysis/` and the expected warnings in `expected/{app}/analysis`. The red lines show missing warnings (false negatives), and green lines show extra warnings (false positives) produced by Aletheia. The script works iteratively:
+
 ```zsh
 python3 collect_warnings.py {app} analysis
 
