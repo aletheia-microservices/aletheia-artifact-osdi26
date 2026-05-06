@@ -1,0 +1,3 @@
+[submodule "generator-synthetic-apps"]
+	path = generator-synthetic-apps
+	url = git@github.com:aletheia-microservices/generator-synthetic-apps.git
