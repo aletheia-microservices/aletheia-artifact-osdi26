@@ -4,7 +4,8 @@ from pathlib import Path
 
 PAPER_DIR_TMP = Path("paper/tmp")
 PAPER_DIR_BASE = Path(__file__).parent / "paper"
-GEN_SYNTHETIC_DIR = PAPER_DIR_BASE.parent / "gen_synthetic"
+GEN_SYNTHETIC_CONFIG = PAPER_DIR_BASE.parent / "generator-synthetic-apps/config/alibaba2021.yaml"
+
 
 APP2_ORDER = [
     "Digota",
@@ -144,7 +145,7 @@ def parse_table3_memory():
 
 
 def parse_synth_config():
-    with open(GEN_SYNTHETIC_DIR / "config.yaml") as f:
+    with open(GEN_SYNTHETIC_CONFIG) as f:
         configs = yaml.safe_load(f)
     data = {}
     for i, app in enumerate(configs, 1):
