@@ -1,4 +1,4 @@
-# Aletheia - Artifact OSDI'26
+# Aletheia - OSDI'26 Artifact Evaluation
 
 This repository contains the artifacts for the paper "Aletheia: Automated Detection of Data Integrity Violations in Microservices", accepted in OSDI'26.
 
@@ -20,6 +20,10 @@ To later gather results from experiments, either install dependencies manually (
 
 ## Overview
 
+If you obtained this artifact directly through [Zenodo](https://doi.org/10.5281/zenodo.20087594), you can skip the repository setup below.
+
+### Repository Setup
+
 Clone the repository:
 
 ```zsh
@@ -32,7 +36,9 @@ If you already cloned the repository without `--recurse-submodules`, make sure t
 git submodule update --init --recursive
 ```
 
-For Aletheia's full documentation, see [aletheia/README.md](https://github.com/aletheia-microservices/aletheia/blob/main/README.md).
+### Project Structure
+
+For Aletheia's full documentation, see [aletheia/README.md](https://github.com/aletheia-microservices/aletheia/blob/osdi26/README.md).
 
 The repository is organized as follows:
 
